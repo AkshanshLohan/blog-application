@@ -90,8 +90,14 @@ export const togglePublish = async (req, res) =>{
 
 export const addComment = async (req, res) =>{
     try {
-        const {blog, name, content } = req.body;
-        await Comment.create({blog, name, content});
+        const { blog, blogId, name, content } = req.body;
+        const resolvedBlogId = blog || blogId;
+
+        if (!resolvedBlogId || !name || !content) {
+            return res.json({ success: false, message: 'Missing required fields' });
+        }
+
+        await Comment.create({ blog: resolvedBlogId, name, content });
         res.json({success: true, message: 'Comment added for review'})
     } catch (error) {
         res.json({success: false, message: error.message})

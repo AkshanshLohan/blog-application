@@ -49,7 +49,8 @@ export const getDashboard = async (req, res) => {
       drafts,
       recentBlogs
     };
-    res.json({ success: true, ...dashboardData });
+    // Frontend expects { success, dashboardData }
+    res.json({ success: true, dashboardData });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
