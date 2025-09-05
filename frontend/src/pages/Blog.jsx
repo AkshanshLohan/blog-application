@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { assets, blog_data } from "../assets/assets";
 import Navbar from "../components/Navbar.jsx";
 import Moment from "moment";
-import Footer from "../components/footer.jsx";
+import Footer from "../components/Footer.jsx";
 import Loader from "../components/Loader.jsx";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
