@@ -60,8 +60,8 @@ const startServer = async () => {
     }
 };
 
-// Only start server if not in Vercel environment
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+// Start server for local development
+if (process.env.NODE_ENV !== 'production') {
     startServer();
 }
 

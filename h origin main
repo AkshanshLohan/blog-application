@@ -1,0 +1,3 @@
+[33mc8b3c8a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Update CORS to allow all Vercel domains and new frontend URL
+[33mce3ad06[m[33m ([m[1;31morigin/main[m[33m)[m Fix CORS configuration to allow frontend domain
+[33mb8cc42c[m Fix case sensitivity issues in component imports
