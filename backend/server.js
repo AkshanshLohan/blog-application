@@ -7,37 +7,13 @@ import blogRouter from './routes/blogRoutes.js';
 
 const app = express();
 
-// Middlewares
+// Middlewares - Allow CORS from anywhere
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Allow localhost for development
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    // Allow all Vercel domains
-    if (origin.includes('.vercel.app')) {
-      return callback(null, true);
-    }
-    
-    // Allow your specific domains
-    const allowedOrigins = [
-      'https://blog-application-uq46.vercel.app',
-      'https://blog-application-fkfo.vercel.app'
-    ];
-    
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    callback(new Error('Not allowed by CORS'));
-  },
+  origin: true, // Allow all origins
   credentials: true,
   optionsSuccessStatus: 200
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -51,7 +27,7 @@ const startServer = async () => {
     try {
         await connectDB();
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, () => {
+        app.listen(PORT, '0.0.0.0', () => {
             console.log('Server is running on port ' + PORT)
         });
     } catch (error) {
@@ -60,9 +36,7 @@ const startServer = async () => {
     }
 };
 
-// Start server for local development
-if (process.env.NODE_ENV !== 'production') {
-    startServer();
-}
+// Always start the server (Render needs this)
+startServer();
 
 export default app;
