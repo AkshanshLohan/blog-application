@@ -7,28 +7,76 @@ import blogRouter from './routes/blogRoutes.js';
 
 const app = express();
 
-// Middlewares - Allow CORS from anywhere
+// Initialize database connection
+let dbConnected = false;
+const initDB = async () => {
+    if (!dbConnected) {
+        try {
+            await connectDB();
+            dbConnected = true;
+            console.log('Database connected successfully');
+        } catch (error) {
+            console.error('Failed to connect to database:', error);
+            throw error;
+        }
+    }
+};
+
+// Middlewares
 const corsOptions = {
-  origin: true, // Allow all origins
-  credentials: true,
-  optionsSuccessStatus: 200
+    origin: '*', // Allow requests from anywhere
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Initialize database for each request in serverless environment
+app.use(async (req, res, next) => {
+    try {
+        await initDB();
+        next();
+    } catch (error) {
+        res.status(500).json({ error: 'Database connection failed' });
+    }
+});
+
 // Routes
 app.get('/', (req, res) => res.send("API is Working"));
-app.use('/api/admin', adminRouter)
-app.use('/api/blog', blogRouter)
+app.get('/api', (req, res) => res.json({ message: "API is Working", status: "success" }));
+app.use('/api/admin', adminRouter);
+app.use('/api/blog', blogRouter);
 
-// Initialize database connection
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
+
+// Start server for local development
 const startServer = async () => {
     try {
-        await connectDB();
+        await initDB();
         const PORT = process.env.PORT || 3000;
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log('Server is running on port ' + PORT)
+        app.listen(PORT, () => {
+            console.log('Server is running on port ' + PORT);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
@@ -36,7 +84,9 @@ const startServer = async () => {
     }
 };
 
-// Always start the server (Render needs this)
-startServer();
+// Only start server in local development
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    startServer();
+}
 
 export default app;
